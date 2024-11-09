@@ -1,5 +1,5 @@
-@extends('backEnd.layouts.master') 
-@section('title','Product Create') 
+@extends('backEnd.layouts.master')
+@section('title','Product Create')
 @section('css')
 <style>
   .increment_btn,
@@ -172,7 +172,7 @@
             <div class="col-sm-4">
               <div class="form-group mb-3">
                 <label for="pro_video" class="form-label">Product Video (Optional)</label>
-                <input type="text" class="form-control @error('pro_video') is-invalid @enderror" name="pro_unit" value="{{ old('pro_video') }}" id="pro_video" />
+                <input type="text" class="form-control @error('pro_video') is-invalid @enderror" name="pro_video" value="{{ old('pro_video') }}" id="pro_video" />
                 @error('pro_video')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
@@ -227,7 +227,7 @@
               </div>
             </div>
             <!-- col end -->
-           
+
             <!-- col end -->
             <div class="col-sm-3 mb-3">
               <div class="form-group">

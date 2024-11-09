@@ -6,6 +6,9 @@ use shurjopayv2\ShurjopayLaravelPackage8\Http\Controllers\ShurjopayController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\Session;
+use Gloudemans\Shoppingcart\Facades\Cart;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
 use App\Models\Subcategory;
 use App\Models\Childcategory;
@@ -15,8 +18,6 @@ use App\Models\CreatePage;
 use App\Models\Campaign;
 use App\Models\Banner;
 use App\Models\ShippingCharge;
-use App\Models\Productcolor;
-use App\Models\Productsize;
 use App\Models\Customer;
 use App\Models\OrderDetails;
 use App\Models\Payment;
@@ -24,58 +25,56 @@ use App\Models\Order;
 use App\Models\Review;
 use App\Models\ProductVariable;
 use App\Models\Brand;
-use Session;
-use Cart;
-use Auth;
 
 class FrontendController extends Controller
 {
     public function index(Request $request)
     {
         $popup_banner = Banner::where(['status' => 1, 'category_id' => 2])
-        ->select('id', 'image', 'link')
-        ->limit(1)
-        ->get();
+            ->select('id', 'image', 'link')
+            ->limit(1)
+            ->get();
 
         $sliders = Banner::where(['status' => 1, 'category_id' => 1])
             ->select('id', 'image', 'link')
             ->get();
 
         $packageproducts = Product::where(['status' => 1, 'topsale' => 1])
-        ->orderBy('id', 'DESC')
-        ->select('id', 'name', 'slug', 'new_price', 'old_price','quantity','topsale','type','pro_unit')
-        ->withCount('variables')
-        ->limit(8)
-        ->get();
+            ->orderBy('id', 'DESC')
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'quantity', 'topsale', 'type', 'pro_unit')
+            ->withCount('variables')
+            ->limit(8)
+            ->get();
 
-        $newarrivals = Product::where(['status' => 1,'topsale' => 0])
-        ->orderBy('id', 'DESC')
-        ->select('id', 'name', 'slug', 'new_price', 'old_price','quantity','topsale','type','pro_unit')
-        ->withCount('variables')
-        ->limit(8)
-        ->get();
+        $newarrivals = Product::where(['status' => 1])
+            ->orderBy('id', 'DESC')
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'quantity', 'topsale', 'type', 'pro_unit')
+            ->withCount('variables')
+            ->limit(8)
+            ->get();
         // return $newarrivals;
 
         $discountproducts = Product::where(['status' => 1, 'topsale' => 0])
-        ->orderBy('id', 'DESC')
-        ->select('id', 'name', 'slug', 'new_price', 'old_price','quantity','topsale','type','pro_unit')
-        ->whereNotNull('old_price')
-        ->withCount('variables')
-        ->limit(8)
-        ->get();
+            ->orderBy('id', 'DESC')
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'quantity', 'topsale', 'type', 'pro_unit')
+            ->whereNotNull('old_price')
+            ->withCount('variables')
+            ->limit(8)
+            ->get();
         // return $discountproducts;
-        
-        if($request->r){
-            Session::put('refferal_id',$request->r);
+
+        if ($request->r) {
+            Session::put('refferal_id', $request->r);
             return redirect()->route('customer.register');
         }
-        return view('frontEnd.layouts.pages.index', compact('sliders','newarrivals','discountproducts','popup_banner','packageproducts'));
+        return view('frontEnd.layouts.pages.index', compact('sliders', 'newarrivals', 'discountproducts', 'popup_banner', 'packageproducts'));
     }
 
-    public function packageproducts(Request $request){
-        $products = Product::where(['status' => 1,'topsale' => 1])
-        ->select('id', 'name', 'slug', 'new_price', 'old_price','quantity','topsale','type','pro_unit')
-        ->withCount('variables');
+    public function packageproducts(Request $request)
+    {
+        $products = Product::where(['status' => 1, 'topsale' => 1])
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'quantity', 'topsale', 'type', 'pro_unit')
+            ->withCount('variables');
         // return $request->sort;
         if ($request->sort == 1) {
             $products = $products->orderBy('created_at', 'desc');
@@ -92,23 +91,24 @@ class FrontendController extends Controller
         } else {
             $products = $products->latest();
         }
-        
+
         $min_price = $products->min('new_price');
         $max_price = $products->max('new_price');
-        if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+        if ($request->min_price && $request->max_price) {
+            $products = $products->where('new_price', '>=', $request->min_price);
+            $products = $products->where('new_price', '<=', $request->max_price);
         }
         $products = $products->paginate(24);
 
-        $categories = Category::where('status',1)->get();
+        $categories = Category::where('status', 1)->get();
         return view('frontEnd.layouts.pages.packageproducts', compact('products', 'min_price', 'max_price', 'categories'));
     }
 
-    public function newarrivals(Request $request){
-        $products = Product::where(['status' => 1,'topsale' => 0])
-        ->select('id', 'name', 'slug', 'new_price', 'old_price','quantity','topsale','type','pro_unit')
-        ->withCount('variables');
+    public function newarrivals(Request $request)
+    {
+        $products = Product::where(['status' => 1])
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'quantity', 'topsale', 'type', 'pro_unit')
+            ->withCount('variables');
         // return $request->sort;
         if ($request->sort == 1) {
             $products = $products->orderBy('created_at', 'desc');
@@ -125,23 +125,24 @@ class FrontendController extends Controller
         } else {
             $products = $products->latest();
         }
-        
+
         $min_price = $products->min('new_price');
         $max_price = $products->max('new_price');
-        if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+        if ($request->min_price && $request->max_price) {
+            $products = $products->where('new_price', '>=', $request->min_price);
+            $products = $products->where('new_price', '<=', $request->max_price);
         }
         $products = $products->paginate(24);
 
-        $categories = Category::where('status',1)->get();
+        $categories = Category::where('status', 1)->get();
         return view('frontEnd.layouts.pages.newarrivals', compact('products', 'min_price', 'max_price', 'categories'));
     }
-    public function offers(Request $request){
-        $products = Product::where(['status' => 1,'topsale' => 0])
-        ->whereNotNull('old_price')
-        ->select('id', 'name', 'slug', 'new_price', 'old_price','quantity','topsale','type','pro_unit')
-        ->withCount('variables');
+    public function offers(Request $request)
+    {
+        $products = Product::where(['status' => 1, 'topsale' => 0])
+            ->whereNotNull('old_price')
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'quantity', 'topsale', 'type', 'pro_unit')
+            ->withCount('variables');
         // return $request->sort;
         if ($request->sort == 1) {
             $products = $products->orderBy('created_at', 'desc');
@@ -158,14 +159,14 @@ class FrontendController extends Controller
         } else {
             $products = $products->latest();
         }
-        
+
         $min_price = $products->min('new_price');
         $max_price = $products->max('new_price');
-        if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+        if ($request->min_price && $request->max_price) {
+            $products = $products->where('new_price', '>=', $request->min_price);
+            $products = $products->where('new_price', '<=', $request->max_price);
         }
-        $categories = Category::where('status',1)->get();
+        $categories = Category::where('status', 1)->get();
         $products = $products->paginate(24);
         return view('frontEnd.layouts.pages.offers', compact('products', 'min_price', 'max_price', 'categories'));
     }
@@ -173,9 +174,9 @@ class FrontendController extends Controller
     public function category($slug, Request $request)
     {
         $category = Category::where(['slug' => $slug, 'status' => 1])->first();
-        $products = Product::where(['status' => 1, 'category_id' => $category->id,'topsale' => 0])
-        ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id','quantity','type','pro_unit')
-        ->withCount('variables');
+        $products = Product::where(['status' => 1, 'category_id' => $category->id, 'topsale' => 0])
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'quantity', 'type', 'pro_unit')
+            ->withCount('variables');
         $subcategories = Subcategory::where('category_id', $category->id)->get();
 
         if ($request->sort == 1) {
@@ -196,9 +197,9 @@ class FrontendController extends Controller
 
         $min_price = $products->min('new_price');
         $max_price = $products->max('new_price');
-        if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+        if ($request->min_price && $request->max_price) {
+            $products = $products->where('new_price', '>=', $request->min_price);
+            $products = $products->where('new_price', '<=', $request->max_price);
         }
         $products = $products->paginate(24);
         return view('frontEnd.layouts.pages.category', compact('category', 'products', 'subcategories', 'min_price', 'max_price'));
@@ -207,9 +208,9 @@ class FrontendController extends Controller
     public function subcategory($slug, Request $request)
     {
         $subcategory = Subcategory::where(['slug' => $slug, 'status' => 1])->first();
-        $products = Product::where(['status' => 1, 'subcategory_id' => $subcategory->id,'topsale' => 0])
-        ->select('id', 'name', 'slug', 'new_price', 'old_price', 'subcategory_id','quantity','type','pro_unit')
-        ->withCount('variables');
+        $products = Product::where(['status' => 1, 'subcategory_id' => $subcategory->id, 'topsale' => 0])
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'subcategory_id', 'quantity', 'type', 'pro_unit')
+            ->withCount('variables');
         $childcategories = Childcategory::where('subcategory_id', $subcategory->id)->get();
 
         // return $request->sort;
@@ -228,12 +229,12 @@ class FrontendController extends Controller
         } else {
             $products = $products->latest();
         }
-        
+
         $min_price = $products->min('new_price');
         $max_price = $products->max('new_price');
-        if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+        if ($request->min_price && $request->max_price) {
+            $products = $products->where('new_price', '>=', $request->min_price);
+            $products = $products->where('new_price', '<=', $request->max_price);
         }
 
         $products = $products->paginate(24);
@@ -246,9 +247,9 @@ class FrontendController extends Controller
         $childcategory = Childcategory::where(['slug' => $slug, 'status' => 1])->first();
         $childcategories = Childcategory::where('subcategory_id', $childcategory->subcategory_id)->get();
 
-        $products = Product::where(['status' => 1, 'childcategory_id' => $childcategory->id,'topsale' => 0])->with('category')
-        ->select('id', 'name', 'slug', 'new_price', 'old_price', 'childcategory_id','quantity','type','pro_unit')
-        ->withCount('variables');
+        $products = Product::where(['status' => 1, 'childcategory_id' => $childcategory->id, 'topsale' => 0])->with('category')
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'childcategory_id', 'quantity', 'type', 'pro_unit')
+            ->withCount('variables');
         // return $request->sort;
         if ($request->sort == 1) {
             $products = $products->orderBy('created_at', 'desc');
@@ -265,12 +266,12 @@ class FrontendController extends Controller
         } else {
             $products = $products->latest();
         }
-        
+
         $min_price = $products->min('new_price');
         $max_price = $products->max('new_price');
-        if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+        if ($request->min_price && $request->max_price) {
+            $products = $products->where('new_price', '>=', $request->min_price);
+            $products = $products->where('new_price', '<=', $request->max_price);
         }
 
         $products = $products->paginate(24);
@@ -283,38 +284,39 @@ class FrontendController extends Controller
     {
         $details = Product::where(['slug' => $slug, 'status' => 1])
             ->with('image', 'images', 'category', 'subcategory', 'childcategory')
-            ->withCount('reviews','variables')
+            ->withCount('reviews', 'variables')
             ->firstOrFail();
 
-        $products = Product::where(['category_id' => $details->category_id, 'status' => 1,'topsale' => 0])
+        $products = Product::where(['category_id' => $details->category_id, 'status' => 1, 'topsale' => 0])
             ->with('image')
             ->withCount('variables')
-            ->select('id', 'name', 'slug', 'new_price', 'old_price','quantity','type','pro_unit')
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'quantity', 'type', 'pro_unit')
             ->get();
-        $shippingcharge = ShippingCharge::where(['status'=>1,'pos'=>0])->get();
-        $reviews = Review::where(['product_id'=>$details->id,'status'=>'active'])->get();
-        $productcolors = ProductVariable::where('product_id', $details->id)->where('stock','>',0)
-        ->select('color')
-        ->distinct()
-        ->get();
-        
-        $productsizes = ProductVariable::where('product_id', $details->id)->where('stock','>',0)
-        ->select('size')
-        ->distinct()
-        ->get();
+        $shippingcharge = ShippingCharge::where(['status' => 1, 'pos' => 0])->get();
+        $reviews = Review::where(['product_id' => $details->id, 'status' => 'active'])->get();
+        $productcolors = ProductVariable::where('product_id', $details->id)->where('stock', '>', 0)
+            ->select('color')
+            ->distinct()
+            ->get();
+        // return $productcolors;
+        $productsizes = ProductVariable::where('product_id', $details->id)->where('stock', '>', 0)
+            ->select('size')
+            ->distinct()
+            ->get();
 
-        $one_star = Review::where(['product_id'=>$details->id,'status'=>'active','ratting'=>1])->select('product_id','status','ratting','id','customer_id')->get();
-        $two_star = Review::where(['product_id'=>$details->id,'status'=>'active','ratting'=>2])->select('product_id','status','ratting','id','customer_id')->get();
-        $three_star = Review::where(['product_id'=>$details->id,'status'=>'active','ratting'=>3])->select('product_id','status','ratting','id','customer_id')->get();
-        $four_star = Review::where(['product_id'=>$details->id,'status'=>'active','ratting'=>4])->select('product_id','status','ratting','id','customer_id')->get();
-        $five_star = Review::where(['product_id'=>$details->id,'status'=>'active','ratting'=>5])->select('product_id','status','ratting','id','customer_id')->get();
-        $total_review = Review::where(['product_id'=>$details->id,'status'=>'active'])->sum('ratting');
-        return view('frontEnd.layouts.pages.details', compact('details', 'products', 'shippingcharge', 'productcolors', 'productsizes', 'reviews','one_star','two_star','three_star','four_star','five_star','total_review'));
+        $one_star = Review::where(['product_id' => $details->id, 'status' => 'active', 'ratting' => 1])->select('product_id', 'status', 'ratting', 'id', 'customer_id')->get();
+        $two_star = Review::where(['product_id' => $details->id, 'status' => 'active', 'ratting' => 2])->select('product_id', 'status', 'ratting', 'id', 'customer_id')->get();
+        $three_star = Review::where(['product_id' => $details->id, 'status' => 'active', 'ratting' => 3])->select('product_id', 'status', 'ratting', 'id', 'customer_id')->get();
+        $four_star = Review::where(['product_id' => $details->id, 'status' => 'active', 'ratting' => 4])->select('product_id', 'status', 'ratting', 'id', 'customer_id')->get();
+        $five_star = Review::where(['product_id' => $details->id, 'status' => 'active', 'ratting' => 5])->select('product_id', 'status', 'ratting', 'id', 'customer_id')->get();
+        $total_review = Review::where(['product_id' => $details->id, 'status' => 'active'])->sum('ratting');
+        return view('frontEnd.layouts.pages.details', compact('details', 'products', 'shippingcharge', 'productcolors', 'productsizes', 'reviews', 'one_star', 'two_star', 'three_star', 'four_star', 'five_star', 'total_review'));
     }
-    public function stock_check(Request $request){
-        $product = ProductVariable::where(['product_id' => $request->id, 'color' => $request->color,'size' => $request->size])->first();
-        
-        return response()->json($product?intval($product->stock):0);
+    public function stock_check(Request $request)
+    {
+        $product = ProductVariable::where(['product_id' => $request->id, 'color' => $request->color, 'size' => $request->size])->first();
+
+        return response()->json($product ? intval($product->stock) : 0);
     }
     public function quickview(Request $request)
     {
@@ -344,9 +346,9 @@ class FrontendController extends Controller
     }
     public function search(Request $request)
     {
-        $products = Product::where(['status' => 1,'topsale' => 0])
-        ->select('id', 'name', 'slug', 'new_price', 'old_price','quantity','topsale','type','pro_unit')
-        ->withCount('variables');
+        $products = Product::where(['status' => 1])
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'quantity', 'topsale', 'type', 'pro_unit')
+            ->withCount('variables');
 
         if ($request->keyword) {
             $products = $products->where('name', 'LIKE', '%' . $request->keyword . "%");
@@ -367,29 +369,29 @@ class FrontendController extends Controller
         } else {
             $products = $products->latest();
         }
-        
+
         $min_price = $products->min('new_price');
         $max_price = $products->max('new_price');
-        if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+        if ($request->min_price && $request->max_price) {
+            $products = $products->where('new_price', '>=', $request->min_price);
+            $products = $products->where('new_price', '<=', $request->max_price);
         }
         $products = $products->paginate(24);
 
         $keyword = $request->keyword;
-        return view('frontEnd.layouts.pages.search', compact('products', 'keyword','min_price','max_price'));
+        return view('frontEnd.layouts.pages.search', compact('products', 'keyword', 'min_price', 'max_price'));
     }
     public function allbrands()
     {
-        $brands = Brand::select('id','name','slug','image','status')->orderBy('name','asc')->get();
+        $brands = Brand::select('id', 'name', 'slug', 'image', 'status')->orderBy('name', 'asc')->get();
         return view('frontEnd.layouts.pages.allbrands', compact('brands'));
     }
-    public function brand(Request $request,$slug)
+    public function brand(Request $request, $slug)
     {
-        $brand = Brand::select('id','name','slug','status')->where(['slug'=>$slug,'status'=>1])->first();
-        $products = Product::where(['status' => 1,'brand_id'=>$brand->id])
-        ->select('id', 'name', 'slug', 'new_price', 'old_price','quantity','topsale','type','pro_unit')
-        ->withCount('variables');
+        $brand = Brand::select('id', 'name', 'slug', 'status')->where(['slug' => $slug, 'status' => 1])->first();
+        $products = Product::where(['status' => 1, 'brand_id' => $brand->id])
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'quantity', 'topsale', 'type', 'pro_unit')
+            ->withCount('variables');
         // return $request->sort;
         if ($request->sort == 1) {
             $products = $products->orderBy('created_at', 'desc');
@@ -406,44 +408,44 @@ class FrontendController extends Controller
         } else {
             $products = $products->latest();
         }
-        
+
         $min_price = $products->min('new_price');
         $max_price = $products->max('new_price');
-        if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+        if ($request->min_price && $request->max_price) {
+            $products = $products->where('new_price', '>=', $request->min_price);
+            $products = $products->where('new_price', '<=', $request->max_price);
         }
         $products = $products->paginate(24);
         $keyword = $request->keyword;
-        return view('frontEnd.layouts.pages.brand', compact('products', 'keyword','min_price','max_price','brand'));
+        return view('frontEnd.layouts.pages.brand', compact('products', 'keyword', 'min_price', 'max_price', 'brand'));
     }
 
     public function shipping_charge(Request $request)
     {
-        if($request->id == NULL){
-            Session::put('shipping',0);
-        }else{
+        if ($request->id == NULL) {
+            Session::put('shipping', 0);
+        } else {
             $shipping = District::where(['area_name' => $request->id])->first();
             Session::put('shipping', $shipping->shippingfee);
         }
 
         $subtotal = Cart::instance('shopping')->subtotal();
-        $subtotal=str_replace(',','',$subtotal);
-        $subtotal=str_replace('.00', '',$subtotal);
-        $shipping = Session::get('shipping')?Session::get('shipping'):0;
-        $discount = Session::get('discount')?Session::get('discount'):0;
-        $coupon = Session::get('coupon_amount') ? Session::get('coupon_amount'):0;
-        $total = $subtotal + $shipping - ($discount+$coupon);
+        $subtotal = str_replace(',', '', $subtotal);
+        $subtotal = str_replace('.00', '', $subtotal);
+        $shipping = Session::get('shipping') ? Session::get('shipping') : 0;
+        $discount = Session::get('discount') ? Session::get('discount') : 0;
+        $coupon = Session::get('coupon_amount') ? Session::get('coupon_amount') : 0;
+        $total = $subtotal + $shipping - ($discount + $coupon);
 
         $savings_amount = auth()->guard('customer')->user()->savings;
-        if($request->status == 'true'){
-            if($total <=  $savings_amount){
-                Session::put('savings_pay',$total);
-            }else{
-                Session::put('savings_pay',0);
+        if ($request->status == 'true') {
+            if ($total <=  $savings_amount) {
+                Session::put('savings_pay', $total);
+            } else {
+                Session::put('savings_pay', 0);
             }
-        }else{
-            Session::put('savings_pay',0);
+        } else {
+            Session::put('savings_pay', 0);
         }
         return view('frontEnd.layouts.ajax.cart');
     }
@@ -451,24 +453,24 @@ class FrontendController extends Controller
 
     public function cod_charge(Request $request)
     {
-        if($request->id =='cod'){
+        if ($request->id == 'cod') {
             $subtotal = Cart::instance('shopping')->subtotal();
-            $subtotal=str_replace(',','',$subtotal);
-            $subtotal=str_replace('.00', '',$subtotal);
-            $shipping = Session::get('shipping')?Session::get('shipping'):0;
-            $discount = Session::get('discount')?Session::get('discount'):0;
-            $coupon = Session::get('coupon_amount') ? Session::get('coupon_amount'):0;
-            $total = $subtotal + $shipping - ($discount+$coupon);
-            
-           $initial_cod = $total > 0? 20 :0;
-            $extra_cod = $total > 1000? 10 : 0;
+            $subtotal = str_replace(',', '', $subtotal);
+            $subtotal = str_replace('.00', '', $subtotal);
+            $shipping = Session::get('shipping') ? Session::get('shipping') : 0;
+            $discount = Session::get('discount') ? Session::get('discount') : 0;
+            $coupon = Session::get('coupon_amount') ? Session::get('coupon_amount') : 0;
+            $total = $subtotal + $shipping - ($discount + $coupon);
+
+            $initial_cod = $total > 0 ? 20 : 0;
+            $extra_cod = $total > 1000 ? 10 : 0;
             $thousands = ceil($total / 1000);
             $cod_charge = $initial_cod + ($extra_cod * ($thousands - 1));
-            Session::put('cod_charge',$cod_charge);
-        }else{
-             Session::put('cod_charge',0);
+            Session::put('cod_charge', $cod_charge);
+        } else {
+            Session::put('cod_charge', 0);
         }
-        
+
         return view('frontEnd.layouts.ajax.cart');
     }
     public function contact(Request $request)
@@ -483,7 +485,7 @@ class FrontendController extends Controller
     }
     public function districts(Request $request)
     {
-        $areas = District::where(['district' => $request->id])->orderBy('area_name','asc')->pluck('area_name', 'id');
+        $areas = District::where(['district' => $request->id])->orderBy('area_name', 'asc')->pluck('area_name', 'id');
         return response()->json($areas);
     }
     public function campaign($slug)
@@ -509,8 +511,8 @@ class FrontendController extends Controller
                 ],
             ]);
         }
-        $shippingcharge = ShippingCharge::where(['status'=>1,'pos'=>0])->get();
-        $select_charge = ShippingCharge::where(['status'=>1,'pos'=>0])->first();
+        $shippingcharge = ShippingCharge::where(['status' => 1, 'pos' => 0])->get();
+        $select_charge = ShippingCharge::where(['status' => 1, 'pos' => 0])->first();
         Session::put('shipping', $select_charge->amount);
         return view('frontEnd.layouts.pages.campaign.campaign', compact('campaign_data', 'product', 'shippingcharge'));
     }
@@ -589,5 +591,4 @@ class FrontendController extends Controller
             }
         }
     }
-
 }

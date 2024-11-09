@@ -9,7 +9,7 @@
                     <img src="{{asset('public/frontEnd/images/order-success.png')}}" alt="">
                 </div>
                 <div class="success-title">
-                    <h2>আপনার অর্ডারটি আমাদের কাছে সফলভাবে পৌঁছেছে, কিছুক্ষনের মধ্যে আমাদের একজন প্রতিনিধি আপনার নাম্বারে কল করবেন </h2>
+                    <h2>আপনার অর্ডারটি আমাদের কাছে সফলভাবে পৌঁছেছে। আগামী ২ থেকে ৪ কর্ম দিবসের মধ্যে আপনার অর্ডারকৃত পন্যটি আপনি হাতে পেয়ে যাবেন ইনশাআল্লাহ। কাডোবিডি থেকে কেনাকাটার জন্য আপনাকে ধন্যবাদ </h2>
                 </div>
 
                 <h5 class="my-3">Your Order Details</h5>
@@ -35,7 +35,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                @php 
+                                @php
                                     $payments = App\Models\Payment::where('order_id',$order->id)->first();
                                 @endphp
                                 <td colspan="4">
@@ -62,7 +62,7 @@
                             <tr>
                                 <td>
                                     <p>{{$value->product_name}} x {{$value->qty}}</p>
-                                    
+
                                 </td>
                                 <td><p><strong>৳ {{$value->sale_price}}</strong></p></td>
                             </tr>

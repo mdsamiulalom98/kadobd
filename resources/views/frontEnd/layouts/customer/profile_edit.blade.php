@@ -40,6 +40,18 @@
                         <!-- col-end -->
                         <div class="col-sm-6">
                             <div class="form-group mb-3">
+                                <label for="bkash_no">bKash Number *</label>
+                                <input type="number" id="bkash_no" class="form-control @error('bkash_no') is-invalid @enderror" name="bkash_no" value="{{$profile_edit->bkash_no}}"  required>
+                                @error('bkash_no')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                        <!-- col-end -->
+                        <div class="col-sm-6">
+                            <div class="form-group mb-3">
                                 <label for="email">Email Address *</label>
                                 <input type="email" id="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{$profile_edit->email}}"  required>
                                 @error('email')
@@ -87,7 +99,7 @@
                                     @foreach($areas as $key=>$area)
                                     <option value="{{$area->id}}" @if($profile_edit->area == $area->id) selected @endif>{{$area->area_name}}</option>
                                     @endforeach
-                                    
+
                                 </select>
                                 @error('area')
                                     <span class="invalid-feedback" role="alert">
@@ -140,19 +152,19 @@
            type:"GET",
            data:{'id':id},
            url:"{{route('districts')}}",
-           success:function(res){               
+           success:function(res){
             if(res){
                 $(".area").empty();
                 $(".area").append('<option value="">Select..</option>');
                 $.each(res,function(key,value){
                     $(".area").append('<option value="'+key+'" >'+value+'</option>');
                 });
-           
+
             }else{
                $(".area").empty();
             }
            }
-        });  
+        });
    });
 </script>
 

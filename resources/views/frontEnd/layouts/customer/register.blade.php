@@ -35,7 +35,7 @@
                         <!-- col-end -->
                         <div class="col-sm-6">
                             <div class="form-group mb-3">
-                                <label for="phone"> Telegram Number *</label>
+                                <label for="phone"> Telegram / WhatsApp Number *</label>
                                  <input type="text" minlength="11" id="number" maxlength="11"
                                     pattern="0[0-9]+"
                                     title="please enter number only and 0 must first character"
@@ -89,10 +89,10 @@
                         <!-- col-end -->
                         <div class="col-sm-6">
                             <div class="form-group mb-3">
-                                <label for="area">Upazila *</label>
+                                <label for="area">Thana *</label>
                                 <select  id="area" class="form-control area select2 @error('area') is-invalid @enderror" name="area" value="{{ old('area') }}"  required>
                                     <option value="">Select...</option>
-                                    
+
                                 </select>
                                 @error('area')
                                     <span class="invalid-feedback" role="alert">
@@ -105,8 +105,8 @@
 
                         <div class="col-sm-6">
                             <div class="form-group mb-3">
-                                <label for="village_name">Village Name *</label>
-                                <input type="text" id="village_name" class="form-control @error('name') is-invalid @enderror" name="village_name" value="{{ old('village_name') }}" placeholder="Enter villege name" required>
+                                <label for="village_name">Village Name </label>
+                                <input type="text" id="village_name" class="form-control @error('name') is-invalid @enderror" name="village_name" value="{{ old('village_name') }}" placeholder="Enter villege name" >
                                 @error('village_name')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -203,7 +203,7 @@
                                     <input type="password" id="password" class="form-control @error('password') is-invalid @enderror password" placeholder="Enter your password " name="password" value="{{ old('password')}}" minlength="6" maxlength="12" required>
                                     <span class="show-password-input"></span>
                                 </div>
-                                
+
                                 @error('password')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -256,8 +256,8 @@
                         </div>
                         </div>
                      <!-- col-end -->
-                     
-                    
+
+
                      </form>
                 </div>
             </div>
@@ -290,19 +290,19 @@
            type:"GET",
            data:{'id':id},
            url:"{{route('districts')}}",
-           success:function(res){               
+           success:function(res){
             if(res){
                 $(".area").empty();
                 $(".area").append('<option value="">Select..</option>');
                 $.each(res,function(key,value){
                     $(".area").append('<option value="'+key+'" >'+value+'</option>');
                 });
-           
+
             }else{
                $(".area").empty();
             }
            }
-        });  
+        });
    });
 </script>
  <script>
