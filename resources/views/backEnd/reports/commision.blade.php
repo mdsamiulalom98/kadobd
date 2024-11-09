@@ -30,7 +30,7 @@
     p{
         margin:0;
     }
-   @page { 
+   @page {
         margin: 50px 0px 0px 0px;
     }
    @media print {
@@ -46,12 +46,12 @@
     header,footer,.no-print,.left-side-menu,.navbar-custom {
       display: none !important;
     }
-    
+
   }
 </style>
-@endsection 
+@endsection
 <div class="container-fluid">
-    
+
     <!-- start page title -->
     <div class="row">
         <div class="col-12">
@@ -59,20 +59,20 @@
                 <h4 class="page-title">Commision Report</h4>
             </div>
         </div>
-    </div>       
-    <!-- end page title --> 
+    </div>
+    <!-- end page title -->
    <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
                 <form class="no-print">
-                    <div class="row no-print">  
+                    <div class="row no-print">
                         <div class="col-sm-3">
                             <div class="form-group">
                                 <label for="start_date" class="form-label">Telegram Number</label>
                                 <input type="text" class="form-control" value="{{request()->get('keyword')}}" name="keyword" placeholder="Telegram Number">
                             </div>
-                        </div> 
+                        </div>
                         <div class="col-sm-3">
                             <div class="form-group">
                                <label for="start_date" class="form-label">Start Date</label>
@@ -94,7 +94,7 @@
                             </div>
                         </div>
                         <!-- col end -->
-                    </div>  
+                    </div>
                 </form>
                 <div class="row mb-3">
                     <div class="col-sm-6 no-print">
@@ -116,22 +116,34 @@
                                     <th>SL</th>
                                     <th>Name</th>
                                     <th>Telegram</th>
+                                    <th>Gender</th>
+                                    <th>Age</th>
                                     <th>Shopping</th>
                                     <th>Commisions</th>
                                     <th>Bkash NO</th>
+                                    <th>DOJ</th>
+                                    <th>DOH</th>
                                 </tr>
                             </thead>
-                        
-                        
+
+
                             <tbody>
                                 @foreach($data as $key=>$value)
+                                @php
+                                    $createdAt = $value->created_at;
+                                    $daysDifference = $createdAt->diffInDays(\Carbon\Carbon::now(), false);
+                                @endphp
                                 <tr>
                                     <td>{{$loop->iteration}}</td>
                                     <td>{{$value->name}}</td>
                                     <td>{{$value->phone}}</td>
-                                    <td>{{$value->profit}}</td>
-                                    <td>{{$value->profits?$value->profits->sum('profit'):0}}</td>
+                                    <td>{{$value->gender}}</td>
+                                    <td>{{$value->age}}</td>
+                                    <td>{{$value->orders->sum('amount') ?? 0}}</td>
+                                    <td>{{$value->profits->sum('profit')??0}}</td>
                                     <td>{{$value->bkash_no}}</td>
+                                    <td>{{$value->created_at->format('d-m-Y')}}</td>
+                                    <td>{{$daysDifference}}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -168,7 +180,7 @@
             tempElement.html(contentToExport);
             tempElement.find('.table').table2excel({
                 exclude: ".no-export",
-                name: "Order Report" 
+                name: "Order Report"
             });
         });
     });

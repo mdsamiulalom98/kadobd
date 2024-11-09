@@ -7,7 +7,7 @@
 @endsection
 @section('content')
 <div class="container-fluid">
-    
+
     <!-- start page title -->
     <div class="row">
         <div class="col-12">
@@ -18,8 +18,8 @@
                 <h4 class="page-title">General Setting Update</h4>
             </div>
         </div>
-    </div>       
-    <!-- end page title --> 
+    </div>
+    <!-- end page title -->
    <div class="row">
     <div class="col-lg-12">
         <div class="card">
@@ -65,7 +65,7 @@
                         </div>
                     </div>
                     <!-- col end -->
-                    
+
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
                             <label for="favicon" class="form-label">Favicon Logo *</label>
@@ -83,7 +83,7 @@
                         <div class="form-group">
                             <label for="order_video" class="form-label">How To order Video*</label>
                             <input type="text" class="form-control @error('order_video') is-invalid @enderror" name="order_video" value="{{ $edit_data->order_video}}"  id="order_video" >
-                        
+
                             @error('order_video')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -94,9 +94,9 @@
                     <!-- col end -->
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
-                            <label for="company_profit" class="form-label">Company Profit Ratio (Flat)*</label>
+                            <label for="company_profit" class="form-label">Amount of Account Authorization (Flat)*</label>
                             <input type="text" class="form-control @error('company_profit') is-invalid @enderror" name="company_profit" value="{{ $edit_data->company_profit}}"  id="company_profit" >
-                        
+
                             @error('company_profit')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -109,7 +109,7 @@
                         <div class="form-group">
                             <label for="withdraw_ratio" class="form-label">Non Withdrawable (%)*</label>
                             <input type="text" class="form-control @error('withdraw_ratio') is-invalid @enderror" name="withdraw_ratio" value="{{ $edit_data->withdraw_ratio}}"  id="withdraw_ratio" >
-                        
+
                             @error('withdraw_ratio')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -117,7 +117,7 @@
                             @enderror
                         </div>
                     </div>
-                    
+
                     <!-- col end -->
                     <div class="col-sm-4">
                             <div class="form-group">
@@ -136,9 +136,9 @@
                     <div class="col-sm-12 mb-3">
                         <div class="form-group">
                             <label for="shipping_note" class="form-label">Shipping Note(Details)</label>
-                            <textarea type="text" class="summernote form-control @error('shipping_note') is-invalid @enderror" 
+                            <textarea type="text" class="summernote form-control @error('shipping_note') is-invalid @enderror"
                             name="shipping_note"  id="shipping_note" >{{ $edit_data->shipping_note}}</textarea>
-                        
+
                             @error('shipping_note')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>

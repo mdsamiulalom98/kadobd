@@ -105,7 +105,7 @@
 
                         <div class="col-sm-6">
                             <div class="form-group mb-3">
-                                <label for="village_name">Village Name </label>
+                                <label for="village_name">Village Name (Optional) </label>
                                 <input type="text" id="village_name" class="form-control @error('name') is-invalid @enderror" name="village_name" value="{{ old('village_name') }}" placeholder="Enter villege name" >
                                 @error('village_name')
                                     <span class="invalid-feedback" role="alert">

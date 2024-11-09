@@ -168,6 +168,12 @@ class OrderController extends Controller
         return view('backEnd.order.invoice', compact('order'));
     }
 
+    public function ticket($invoice_id)
+    {
+        $order = Order::where(['invoice_id' => $invoice_id])->with('orderdetails', 'payment', 'shipping', 'customer')->firstOrFail();
+        return view('backEnd.order.slip', compact('order'));
+    }
+
     public function process($invoice_id)
     {
         $data = Order::where(['invoice_id' => $invoice_id])->select('id', 'invoice_id', 'order_status')->with('orderdetails')->first();
@@ -340,7 +346,6 @@ class OrderController extends Controller
                 $profit_save->save();
             }
         }
-
 
         Toastr::success('Success', 'Order status change successfully');
         return redirect('admin/order/' . $link);
@@ -935,15 +940,28 @@ class OrderController extends Controller
     }
     public function commision_report(Request $request)
     {
+        $data = Customer::with([
+            'orders' => function ($query) use ($request) {
+                if ($request->start_date && $request->end_date) {
+                    $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+                }
+            },
+            'profits' => function ($query) use ($request) {
+                if ($request->start_date && $request->end_date) {
+                    $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+                }
+            }
+        ])
+        ->select('id', 'name', 'gender', 'age', 'profit', 'status', 'created_at', 'phone', 'bkash_no')
+        ->where('status', 'active');
 
-        $data = Customer::select('id', 'name', 'profit', 'status', 'created_at', 'phone', 'bkash_no')->where('status', 'active');
         if ($request->keyword) {
             $data = $data->where('phone', $request->keyword);
         }
-        if ($request->start_date && $request->end_date) {
-            $data = $data->whereBetween('created_at', [$request->start_date, $request->end_date]);
-        }
-        $data = $data->with('profits', 'orders')->paginate(50);
+
+        // Paginate the results
+        $data = $data->paginate(50);
+
         return view('backEnd.reports.commision', compact('data'));
     }
     public function loss_profit(Request $request)

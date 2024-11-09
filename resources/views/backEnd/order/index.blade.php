@@ -2,7 +2,7 @@
 @section('title',$order_status->name.' Order')
 @section('content')
 <div class="container-fluid">
-    
+
     <!-- start page title -->
     <div class="row">
         <div class="col-12">
@@ -13,8 +13,8 @@
                 <h4 class="page-title">{{$order_status->name}} Order ({{$order_status->orders_count}})</h4>
             </div>
         </div>
-    </div>       
-    <!-- end page title --> 
+    </div>
+    <!-- end page title -->
    <div class="row order_page">
     <div class="col-12">
         <div class="card">
@@ -58,19 +58,20 @@
                             <th style="width:10%">Status</th>
                         </tr>
                     </thead>
-                
-                
+
+
                     <tbody>
                         @foreach($show_data as $key=>$value)
                         <tr>
                             <td><input type="checkbox" class="checkbox" value="{{$value->id}}"></td>
                             <td>{{$loop->iteration}}</td>
                             <td>
-                                <div class="button-list custom-btn-list">   
+                                <div class="button-list custom-btn-list">
                                     <a href="{{route('admin.order.invoice',['invoice_id'=>$value->invoice_id])}}" title="Invoice"><i class="fe-eye"></i></a>
                                     <a href="{{route('admin.order.process',['invoice_id'=>$value->invoice_id])}}" title="Process"><i class="fe-settings"></i></a>
                                     <a href="{{route('admin.order.edit',['invoice_id'=>$value->invoice_id])}}" title="Edit"><i class="fe-edit"></i></a>
-                                    <form method="post" action="{{route('admin.order.destroy')}}" class="d-inline">        
+                                    <a href="{{route('admin.order.ticket',['invoice_id'=>$value->invoice_id])}}" title="Ticket"><i class="fe-tag"></i></a>
+                                    <form method="post" action="{{route('admin.order.destroy')}}" class="d-inline">
                                         @csrf
                                     <input type="hidden" value="{{$value->id}}" name="id">
                                     <button type="submit" title="Delete" class="delete-confirm"><i class="fe-trash-2"></i></button></form>
@@ -83,7 +84,7 @@
                             <td>{{$value->user?$value->user->name:''}}</td>
                             <td>৳{{$value->amount}}</td>
                             <td>{{$value->status?$value->status->name:''}}</td>
-                            
+
                         </tr>
                         @endforeach
                     </tbody>
@@ -93,7 +94,7 @@
                     {{$show_data->links('pagination::bootstrap-4')}}
                 </div>
             </div> <!-- end card body-->
-           
+
         </div> <!-- end card -->
     </div><!-- end col-->
    </div>
@@ -247,17 +248,17 @@ $(document).ready(function(){
         var url = $(this).attr('action');
         var method = $(this).attr('method');
         let user_id=$(document).find('select#user_id').val();
-    
+
         var order = $('input.checkbox:checked').map(function(){
           return $(this).val();
         });
         var order_ids=order.get();
-        
+
         if(order_ids.length ==0){
             toastr.error('Please Select An Order First !');
             return ;
         }
-        
+
         $.ajax({
            type:'GET',
            url:url,
@@ -266,32 +267,32 @@ $(document).ready(function(){
                if(res.status=='success'){
                 toastr.success(res.message);
                 window.location.reload();
-                
+
             }else{
                 toastr.error('Failed something wrong');
             }
            }
         });
-    
+
     });
 
-    // order status change 
+    // order status change
     $(document).on('submit', 'form#order_status_form', function(e){
         e.preventDefault();
         var url = $(this).attr('action');
         var method = $(this).attr('method');
         let order_status=$(document).find('select#order_status').val();
-    
+
         var order = $('input.checkbox:checked').map(function(){
           return $(this).val();
         });
         var order_ids=order.get();
-        
+
         if(order_ids.length ==0){
             toastr.error('Please Select An Order First !');
             return ;
         }
-        
+
         $.ajax({
            type:'GET',
            url:url,
@@ -300,13 +301,13 @@ $(document).ready(function(){
                if(res.status=='success'){
                 toastr.success(res.message);
                 window.location.reload();
-                
+
             }else{
                 toastr.error('Failed something wrong');
             }
            }
         });
-    
+
     });
     // order delete
     $(document).on('click', '.order_delete', function(e){
@@ -316,12 +317,12 @@ $(document).ready(function(){
           return $(this).val();
         });
         var order_ids=order.get();
-        
+
         if(order_ids.length ==0){
             toastr.error('Please Select An Order First !');
             return ;
         }
-        
+
         $.ajax({
            type:'GET',
            url:url,
@@ -330,15 +331,15 @@ $(document).ready(function(){
                if(res.status=='success'){
                 toastr.success(res.message);
                 window.location.reload();
-                
+
             }else{
                 toastr.error('Failed something wrong');
             }
            }
         });
-    
+
     });
-    
+
     // multiple print
     $(document).on('click', '.multi_order_print', function(e){
         e.preventDefault();
@@ -347,7 +348,7 @@ $(document).ready(function(){
           return $(this).val();
         });
         var order_ids=order.get();
-        
+
         if(order_ids.length ==0){
             toastr.error('Please Select Atleast One Order!');
             return ;
@@ -358,8 +359,8 @@ $(document).ready(function(){
            data:{order_ids},
            success:function(res){
                if(res.status=='success'){
-                   console.log(res.items, res.info);                          
-                   var myWindow = window.open("", "_blank");                   
+                   console.log(res.items, res.info);
+                   var myWindow = window.open("", "_blank");
                    myWindow.document.write(res.view);
             }else{
                 toastr.error('Failed something wrong');
@@ -375,12 +376,12 @@ $(document).ready(function(){
           return $(this).val();
         });
         var order_ids=order.get();
-        
+
         if(order_ids.length ==0){
             toastr.error('Please Select An Order First !');
             return ;
         }
-        
+
         $.ajax({
            type:'GET',
            url:url,
@@ -389,13 +390,13 @@ $(document).ready(function(){
                if(res.status=='success'){
                 toastr.success(res.message);
                 window.location.reload();
-                
+
             }else{
                 toastr.error('Failed something wrong');
             }
            }
         });
-    
+
     });
 })
 </script>
