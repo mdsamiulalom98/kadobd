@@ -15,6 +15,7 @@ use Brian2694\Toastr\Facades\Toastr;
 use Intervention\Image\Facades\Image;
 use App\Models\Customer;
 use App\Models\District;
+use App\Models\Thana;
 use App\Models\Order;
 use App\Models\OrderDetails;
 use App\Models\Payment;
@@ -84,7 +85,7 @@ class CustomerController extends Controller
 
     public function register()
     {
-        $districts = District::distinct()->select('district')->orderBy('district', 'asc')->get();
+        $districts = District::select('district_name', 'id')->orderBy('district_name', 'asc')->get();
         return view('frontEnd.layouts.customer.register', compact('districts'));
     }
 
@@ -367,7 +368,7 @@ class CustomerController extends Controller
         $thousands = ceil($total / 1000);
         $cod_charge = $initial_cod + ($extra_cod * ($thousands - 1));
         Session::put('cod_charge', $cod_charge);
-        $districts = District::distinct()->select('district')->orderBy('district', 'asc')->get();
+        $districts = District::select('district_name', 'id')->orderBy('district_name', 'asc')->get();
         return view('frontEnd.layouts.customer.checkout', compact('bkash_gateway', 'shurjopay_gateway', 'districts'));
     }
     public function order_save(Request $request)
@@ -377,7 +378,6 @@ class CustomerController extends Controller
             'phone' => 'required',
             'district' => 'required',
             'upazila' => 'required',
-            'village_name' => 'required',
             'address' => 'required'
         ]);
         if (Cart::instance('shopping')->count() <= 0) {
@@ -389,9 +389,11 @@ class CustomerController extends Controller
         $subtotal = str_replace(',', '', $subtotal);
         $subtotal = str_replace('.00', '', $subtotal);
         $discount = Session::get('discount') + Session::get('coupon_amount');
-
-        $shippingfee  = Session::get('shipping');
-        $cod_charge  = Session::get('cod_charge');
+        $district_name = District::find($request->district)->district_name;
+        $thana_name = Thana::find($request->upazila)->thana_name;
+        $shippingfee  = Session::get('shipping') ?? 0;
+        $cod_charge  = Session::get('cod_charge') ?? 0;
+        $cashout_charge  = Session::get('cashout_charge') ?? 0;
         $purchase_amount = 0;
         foreach (Cart::instance('shopping')->content() as $row) {
             $purchase_amount += $row->options->purchase_price * $row->qty;
@@ -419,6 +421,7 @@ class CustomerController extends Controller
         $order->savings_pay      = Session::get('savings_pay');
         $order->shipping_charge  = $shippingfee;
         $order->cod_charge       = $cod_charge;
+        $order->cashout_charge   = $cashout_charge;
         $order->purchase_amount  = $purchase_amount;
         $order->customer_id      = Auth::guard('customer')->user()->id;
         $order->order_status     = 1;
@@ -431,8 +434,8 @@ class CustomerController extends Controller
         $shipping->customer_id    =   Auth::guard('customer')->user()->id;
         $shipping->name           =   $request->name;
         $shipping->phone          =   $request->phone;
-        $shipping->district       =   $request->district;
-        $shipping->upazila        =   $request->upazila;
+        $shipping->district       =   $district_name;
+        $shipping->upazila        =   $thana_name;
         $shipping->village_name   =   $request->village_name;
         $shipping->word_no        =   $request->word_no;
         $shipping->address        =   $request->address;

@@ -73,10 +73,10 @@
                         <div class="col-sm-6">
                             <div class="form-group mb-3">
                                 <label for="district">District *</label>
-                                <select  id="district" class="form-control select2 district @error('district') is-invalid @enderror" name="district"  required>
+                                <select  id="district" class="form-control form-select select2 district @error('district') is-invalid @enderror" name="district"  required>
                                     <option value="">Select...</option>
                                     @foreach($districts as $key=>$district)
-                                    <option value="{{$district->district}}" {{ old('district') == $district->district ? 'selected' : '' }} >{{$district->district}}</option>
+                                    <option value="{{$district->id}}" {{ old('district') == $district->id ? 'selected' : '' }} >{{$district->district_name}}</option>
                                     @endforeach
                                 </select>
                                 @error('district')
@@ -90,7 +90,7 @@
                         <div class="col-sm-6">
                             <div class="form-group mb-3">
                                 <label for="area">Thana *</label>
-                                <select  id="area" class="form-control area select2 @error('area') is-invalid @enderror" name="area" value="{{ old('area') }}"  required>
+                                <select  id="area" class="form-control form-select area select2 @error('area') is-invalid @enderror" name="area" value="{{ old('area') }}"  required>
                                     <option value="">Select...</option>
 
                                 </select>
@@ -158,7 +158,7 @@
                         <div class="col-sm-6">
                             <div class="form-group mb-3">
                                 <label for="gender">Gender *</label>
-                                <select  id="gender" class="form-control gender select2 @error('gender') is-invalid @enderror" name="gender" value="{{ old('gender') }}"  required>
+                                <select  id="gender" class="form-control form-select gender select2 @error('gender') is-invalid @enderror" name="gender" value="{{ old('gender') }}"  required>
                                    <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
                                     <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
                                     <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Other</option>

@@ -267,7 +267,7 @@ class OrderController extends Controller
 
             $netprofit = $order->amount - ($order->cod_charge + $order->purchase_amount);
             $customer = Customer::find($order->customer_id);
-            $customer->profit += $order->amount;
+            $customer->profit += $netprofit;
             $customer->save();
 
             // level1 profit share

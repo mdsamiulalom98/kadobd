@@ -10,6 +10,7 @@
         $coupon = Session::get('coupon_amount') ? Session::get('coupon_amount') : 0;
         $discount = Session::get('discount') ? Session::get('discount') : 0;
         $cod_charge = Session::get('cod_charge') ? Session::get('cod_charge') : 0;
+        $cashout_charge = Session::get('cashout_charge') ?? 0;
     @endphp
     <div class="container">
         <div class="row">
@@ -67,7 +68,7 @@
                                                 name="district" value="{{ old('district') }}" required>
                                                 <option value="">Select...</option>
                                                 @foreach ($districts as $key => $district)
-                                                    <option value="{{ $district->district }}">{{ $district->district }}
+                                                    <option value="{{ $district->id }}">{{ $district->district_name }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -382,6 +383,15 @@
                                             </td>
                                         </tr>
                                     @endif
+                                    @if ($cashout_charge)
+                                        <tr>
+                                            <th colspan="3" class="text-end px-4">Cashout Charge</th>
+                                            <td class="px-4">
+                                                <span id="cart_shipping_cost"><span class="alinur">৳
+                                                    </span><strong>{{ $cashout_charge }}</strong></span>
+                                            </td>
+                                        </tr>
+                                    @endif
                                     <tr>
                                         <th colspan="3" class="text-end px-4">Discount</th>
                                         <td class="px-4">
@@ -393,7 +403,7 @@
                                         <th colspan="3" class="text-end px-4">Total</th>
                                         <td class="px-4">
                                             <span id="grand_total"><span class="alinur">৳
-                                                </span><strong>{{ $subtotal + $shipping + $cod_charge - ($discount + $coupon) }}</strong></span>
+                                            </span><strong>{{ $subtotal + $shipping + $cod_charge + $cashout_charge - ($discount + $coupon) }}</strong></span>
                                         </td>
                                     </tr>
                                 </tfoot>

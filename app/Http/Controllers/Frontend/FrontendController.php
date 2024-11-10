@@ -14,6 +14,7 @@ use App\Models\Subcategory;
 use App\Models\Childcategory;
 use App\Models\Product;
 use App\Models\District;
+use App\Models\Thana;
 use App\Models\CreatePage;
 use App\Models\Campaign;
 use App\Models\Banner;
@@ -471,6 +472,21 @@ class FrontendController extends Controller
             Session::put('cod_charge', 0);
         }
 
+        if($request->id == 'bkash' || $request->id == 'rocket') {
+            $subtotal = Cart::instance('shopping')->subtotal();
+            $subtotal = str_replace(',', '', $subtotal);
+            $subtotal = str_replace('.00', '', $subtotal);
+            $shipping = Session::get('shipping') ? Session::get('shipping') : 0;
+            $discount = Session::get('discount') ? Session::get('discount') : 0;
+            $coupon = Session::get('coupon_amount') ? Session::get('coupon_amount') : 0;
+            $total = $subtotal + $shipping - ($discount + $coupon);
+            $cashout_charge = ($total / 100) * 1.8;
+            Session::put('cashout_charge', $cashout_charge);
+        } else {
+            Session::put('cashout_charge', 0);
+        }
+
+
         return view('frontEnd.layouts.ajax.cart');
     }
     public function contact(Request $request)
@@ -485,7 +501,7 @@ class FrontendController extends Controller
     }
     public function districts(Request $request)
     {
-        $areas = District::where(['district' => $request->id])->orderBy('area_name', 'asc')->pluck('area_name', 'id');
+        $areas = Thana::where(['district_id' => $request->id])->orderBy('thana_name', 'asc')->pluck('thana_name', 'id');
         return response()->json($areas);
     }
     public function campaign($slug)

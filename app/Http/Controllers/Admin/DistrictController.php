@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\District;
-use Image;
-use Toastr;
-use Str;
+use Brian2694\Toastr\Facades\Toastr;
+
 class DistrictController extends Controller
 {
     function __construct()
@@ -20,17 +19,17 @@ class DistrictController extends Controller
     public function index(Request $request)
     {
 
-        $data = District::orderBy('id','DESC')->get();
-        $districts = District::select('district','shippingfee')->distinct()->get();
+        $data = District::orderBy('district_name','DESC')->get();
+        $districts = District::select('district_name','id')->get();
         return view('backEnd.district.index',compact('data','districts'));
     }
-    
+
     public function edit($id)
     {
         $edit_data = District::find($id);
         return view('backEnd.district.edit',compact('edit_data'));
     }
-    
+
     public function update(Request $request)
     {
         $this->validate($request, [
@@ -42,7 +41,7 @@ class DistrictController extends Controller
         Toastr::success('Success','Data update successfully');
         return redirect()->route('districts.index');
     }
-    
+
     public function district_charge(Request $request){
         $this->validate($request, [
             'shippingfee' => 'required',
@@ -53,5 +52,5 @@ class DistrictController extends Controller
         Toastr::success('Success','Data update successfully');
         return redirect()->route('districts.index');
     }
- 
+
 }
